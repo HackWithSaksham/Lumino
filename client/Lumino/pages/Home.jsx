@@ -3,12 +3,12 @@ import { FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 function Home() {
   const features = [
-    { title: "Magical Notebook", description: "Seamlessly enhance productivity with this feature.", color: "bg-pink-500" },
-    { title: "Interactive Collaboration", description: "Work together in real-time with teammates.", color: "bg-green-500" },
-    { title: "Autosave Idea", description: "Never lose your thoughts or progress.", color: "bg-red-500" },
-    { title: "Mind-Maps", description: "Visualize ideas in structured maps.", color: "bg-purple-600" },
-    { title: "Voice to Text Input", description: "Capture ideas hands-free.", color: "bg-cyan-500" },
-    { title: "AI Assistance", description: "Get intelligent suggestions while you work.", color: "bg-blue-500" },
+    { title: "Magical Notebook", description: "A notebook enchanted with wonder, where every spark is preserved like a spell", color: "bg-pink-500" },
+    { title: "Interactive Collaboration", description: "Not just working together, but conjuring together, turning scattered sparks into shining constellations.", color: "bg-green-500" },
+    { title: "Autosave Idea", description: "No spark ever fades, every thought is captured the moment it’s born.", color: "bg-red-500" },
+    { title: "Mind-Maps", description: "Trace the threads of inspiration, and uncover the hidden design of your ideas.", color: "bg-purple-600" },
+    { title: "Voice to Text Input", description: "Whisper an idea, and watch it etch itself in glowing ink.", color: "bg-cyan-500" },
+    { title: "AI Assistance", description: "A hidden guide at every step, illuminating paths you never saw.", color: "bg-blue-500" },
   ];
 
   const whatotherssay = [
