@@ -10,7 +10,7 @@ class AIMuseService:
             prompt = f"Expand this idea in {category} style: {raw_idea}"
 
             response = client.chat.completions.create(
-                model="gpt-4o-mini",  # ✅ modern model name
+                model="gpt-4o-mini", 
                 messages=[
                     {"role": "system", "content": "You are a creative AI assistant."},
                     {"role": "user", "content": prompt}
