@@ -4,7 +4,9 @@ import React, { useContext, useState } from "react";
 import { AppContent } from "../context/AppContext";
 import { Navigate, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import bg from "../public/loginbg.png";
+import bg from "../public/footerbg2.png";
+import bg2 from "../public/loginbg2.png"
+import Navbar from "../components/Navbar";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,40 +77,42 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen ">
+    <div className="flex flex-col min-h-screen" style={{ backgroundImage: `url(${bg})` }}>
+      <Navbar />
+      <div>
       {login && (
         <div
-          className="flex mx-50 mt-25 rounded-2xl"
-          style={{ backgroundImage: `url(${bg})` }}
+          className="flex mx-50 rounded-2xl"
+          style={{ backgroundImage: `url(${bg2})` }}
         >
-          <div className="flex flex-col gap-17 w-[50%] text-white m-17">
+          <div className="flex flex-col gap-17 w-[50%] text-white mt-22 m-17">
             <div className="flex flex-col gap-7">
               <div>
-                <p className="text-5xl font-semibold">Where ideas</p>
-                <p className="text-5xl font-semibold">find collaborators!!!</p>
+                <p className="text-5xl font-semibold text-white/90">Where ideas</p>
+                <p className="text-5xl font-semibold text-white/90">find collaborators!!!</p>
               </div>
-              <p className="text-lg font-extralight">
+              <p className="text-lg text-white/50">
                 Turn your ideas into reality by connecting with like-minded
                 innovators across the globe
               </p>
             </div>
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 text-white/50">
               <div className="flex gap-3 items-center">
-                <Icons.Lightbulb size={30} className="text-white" />
+                <Icons.Lightbulb size={30} className="text-white/70" />
                 <p className="text-xl">Creation!</p>
               </div>
               <div className="flex gap-3 items-center">
-                <Icons.Handshake size={30} className="text-white" />
+                <Icons.Handshake size={30} className="text-white/70" />
                 <p className="text-xl">Collaboration!</p>
               </div>
               <div className="flex gap-3 items-center">
-                <Icons.ChartNetwork size={30} className="text-white" />
+                <Icons.ChartNetwork size={30} className="text-white/70" />
                 <p className="text-xl">Correlation!</p>
               </div>
             </div>
           </div>
 
-          <div className="gap-25 items-center w-[50%] text-white flex flex-col bg-[#25183C] rounded-2xl px-10 py-23">
+          <div className="gap-25 items-center w-[50%] text-white flex flex-col bg-[#190c30] rounded-2xl px-10 py-23">
             <p className="text-3xl font-bold">Login To Lumino</p>
             <div className="gap-13 items-center text-white flex flex-col w-full">
               <div className="flex flex-col gap-3 w-full">
@@ -117,7 +121,7 @@ const Login = () => {
                   value={email}
                   placeholder="Enter email"
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-[#140B2F] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
+                  className="bg-[#251a46] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
                 />
                 <div className="flex flex-col gap-1.5">
                   <input
@@ -125,7 +129,7 @@ const Login = () => {
                     value={password}
                     placeholder="Enter password"
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-[#140B2F] text-white/50 text-[16px] px-4 py-2.5 rounded-md"
+                    className="bg-[#251a46] text-white/50 text-[16px] px-4 py-2.5 rounded-md"
                   />
                   <NavLink
                     to="/reset-password"
@@ -138,7 +142,7 @@ const Login = () => {
               <div className="flex flex-col items-center gap-3">
                 <button
                   onClick={(e) => handleSubmitlogin(e)}
-                  className="px-30 py-2 text-white/50 rounded-md bg-[#140B2F]"
+                  className="px-30 py-2 text-white/50 rounded-md bg-[#251a46]"
                 >
                   Login
                 </button>
@@ -155,37 +159,37 @@ const Login = () => {
       )}
       {!login && (
         <div
-          className="flex mx-50 mt-25 rounded-2xl"
-          style={{ backgroundImage: `url(${bg})` }}
+          className="flex mx-50 rounded-2xl"
+          style={{ backgroundImage: `url(${bg2})` }}
         >
-          <div className="flex flex-col gap-17 w-[50%] text-white m-17">
+          <div className="flex flex-col gap-17 w-[50%] text-white mt-22 m-17">
             <div className="flex flex-col gap-7">
               <div>
-                <p className="text-5xl font-semibold">Where ideas</p>
-                <p className="text-5xl font-semibold">find collaborators!!!</p>
+                <p className="text-5xl font-semibold text-white/90">Where ideas</p>
+                <p className="text-5xl font-semibold text-white/90">find collaborators!!!</p>
               </div>
-              <p className="text-lg font-extralight">
+              <p className="text-lg text-white/50">
                 Turn your ideas into reality by connecting with like-minded
                 innovators across the globe
               </p>
             </div>
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 text-white/50">
               <div className="flex gap-3 items-center">
-                <Icons.Lightbulb size={30} className="text-white" />
+                <Icons.Lightbulb size={30} className="text-white/70" />
                 <p className="text-xl">Creation!</p>
               </div>
               <div className="flex gap-3 items-center">
-                <Icons.Handshake size={30} className="text-white" />
+                <Icons.Handshake size={30} className="text-white/70" />
                 <p className="text-xl">Collaboration!</p>
               </div>
               <div className="flex gap-3 items-center">
-                <Icons.ChartNetwork size={30} className="text-white" />
+                <Icons.ChartNetwork size={30} className="text-white/70" />
                 <p className="text-xl">Correlation!</p>
               </div>
             </div>
           </div>
 
-          <div className="gap-25 items-center w-[50%] text-white flex flex-col bg-[#25183C] rounded-2xl px-10 py-23">
+          <div className="gap-25 items-center w-[50%] text-white flex flex-col bg-[#190c30] rounded-2xl px-10 py-23">
             <p className="text-3xl font-bold">Create Account</p>
             <div className="gap-13 items-center text-white flex flex-col w-full">
               <div className="flex flex-col gap-3 w-full">
@@ -194,21 +198,21 @@ const Login = () => {
                   value={username}
                   placeholder="Enter Full Name"
                   onChange={(e) => setusername(e.target.value)}
-                  className="bg-[#140B2F] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
+                  className="bg-[#251a46] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
                 />
                 <input
                   type="email"
                   value={email}
                   placeholder="Enter email"
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-[#140B2F] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
+                  className="bg-[#251a46] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
                 />
                 <input
                   type="password"
                   value={password}
                   placeholder="Enter password"
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-[#140B2F] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
+                  className="bg-[#251a46] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
                 />
                 
                 <div className="flex gap-3">
@@ -217,14 +221,14 @@ const Login = () => {
                   value={country}
                   placeholder="Select country"
                   onChange={(e) => setcountry(e.target.value)}
-                  className="bg-[#140B2F] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
+                  className="bg-[#251a46] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
                 />
                 <input
                   type="text"
                   value={passion}
                   placeholder="Describe passion"
                   onChange={(e) => setpassion(e.target.value)}
-                  className="bg-[#140B2F] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
+                  className="bg-[#251a46] text-white/50 text-[16px] px-4 py-2.5 rounded-md "
                 />
                 </div>
                 
@@ -232,7 +236,7 @@ const Login = () => {
               <div className="flex flex-col items-center gap-3">
                   <button
                     onClick={(e) => handleSubmitregister(e)}
-                    className="px-30 py-2 text-white/50 rounded-md bg-[#140B2F]"
+                    className="px-30 py-2 text-white/50 rounded-md bg-[#251a46]"
                   >
                     Submit
                   </button>
@@ -247,6 +251,7 @@ const Login = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
