@@ -1,65 +1,59 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 import axios from "axios";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AppContent } from "../context/AppContext";
 import { toast } from "react-toastify";
-
-
-
+import homebg from "../public/Homebg2.png";
+import * as Icons from "lucide-react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 function Home() {
   const navigate = useNavigate();
-const { backendUrl, isLoggedin, setIsLoggedin,ideaid,setideaid } = useContext(AppContent);
-const handlelogout = async () => {
-  try {
-    const { data } = await axios.get(`${backendUrl}/api/user/logout`);
-    if (data.success) {
-      await setIsLoggedin(false);
-      navigate("/");
-      toast.success(data.message);
-    } else {
-      toast.error(data.message);
-    }
-  } catch (error) {
-    toast.error(error.message);
-  }
-};  
+  const { backendUrl, isLoggedin, setIsLoggedin, ideaid, setideaid ,userData,getUserData,handlelogout} =
+    useContext(AppContent);
+  
   const features = [
     {
+      icon: "NotebookPen",
       title: "Magical Notebook",
       description:
         "A notebook enchanted with wonder, where every spark is preserved like a spell",
-      color: "bg-pink-500",
+      color: "bg-[#B75F69]",
     },
     {
+      icon: "Handshake",
       title: "Interactive Collaboration",
       description:
         "Not just working together, but conjuring together, turning scattered sparks into shining constellations.",
-      color: "bg-green-500",
+      color: "bg-[#54A243]",
     },
     {
+      icon: "Save",
       title: "Autosave Idea",
       description:
         "No spark ever fades, every thought is captured the moment it’s born.",
-      color: "bg-red-500",
+      color: "bg-[#9A358B]",
     },
     {
+      icon: "BrainCircuit",
       title: "Mind-Maps",
       description:
         "Trace the threads of inspiration, and uncover the hidden design of your ideas.",
-      color: "bg-purple-600",
+      color: "bg-[#462AA0]",
     },
     {
+      icon: "Mic",
       title: "Voice to Text Input",
       description: "Whisper an idea, and watch it etch itself in glowing ink.",
-      color: "bg-cyan-500",
+      color: "bg-[#1C7886]",
     },
     {
+      icon: "Bot",
       title: "AI Assistance",
       description:
         "A hidden guide at every step, illuminating paths you never saw.",
-      color: "bg-blue-500",
+      color: "bg-[#6757AA]",
     },
   ];
 
@@ -81,230 +75,105 @@ const handlelogout = async () => {
     },
   ];
 
+  useEffect(()=>{},[userData])
+
   return (
     <div
-      className="min-h-screen bg-cover bg-center text-white"
-      style={{ backgroundImage: "url('/images/bg.png')" }}
+      className="flex flex-col min-h-screen bg-cover bg-center text-white"
+      style={{ backgroundImage: `url(${homebg})` }}
     >
-      <div className="flex justify-between items-center px-8 py-6">
-        <div className="flex items-center gap-2">
-          <img src="/images/logo.png" className="w-10 h-10" />
-          <div className="text-2xl font-bold">Lumino</div>
+      <Navbar />
+      <div className="flex flex-col pt-20 pb-25 px-30 w-[55%] gap-20 items-center">
+        <div className="flex flex-col gap-10">
+          <p className="text-[40px] font-bold leading-tight text-white/90">
+            Preserving and showcasing creative works & performance
+          </p>
+          <p className="text-md text-white/50">
+            Mystical is your creative space where ideas come alive. With magical
+            notebooks, interactive mind maps, AI assistance, and seamless
+            collaboration, it captures every spark and turns it into something
+            extraordinary. Step in, create, and let your imagination flow.
+          </p>
         </div>
-        <ul className="hidden md:flex gap-8 text-lg">
-          <li>
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              Home
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              About
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/features"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              Features
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/faq"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              FAQ
-            </NavLink>
-          </li>
-        </ul>
-        <Link to="/profile">
-          <img src="/images/user.png" className="w-8 h-8 rounded-full" />
-        </Link>
-      </div>
-      
-      <div className="text-center py-24 px-8 max-w-3xl mx-auto">
-        <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-          Preserving and showcasing creative works & performance
-        </h1>
-        {isLoggedin ? (
-        <button className="text-black" onClick={handlelogout}>Logout</button>
-      ) : (
-        <NavLink to="/login" className="text-black">Login</NavLink>
-      )}
-      <NavLink to="/idea" className="text-black" onClick={()=>setideaid("")}>New idea</NavLink>
-        <p className="mt-6 text-lg text-gray-200">
-          Mystical is your creative space where ideas come alive. With magical
-          notebooks, interactive mind maps, AI assistance, and seamless
-          collaboration, it captures every spark and turns it into something
-          extraordinary.
-        </p>
-        <button className="mt-8 px-6 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-xl text-lg font-semibold shadow-lg">
-          Get Started
-        </button>
-      </div>
-
-      <div className="py-16 px-6">
-        <h2 className="text-center text-3xl font-bold mb-12">
-          Our Competitive Advantage
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {features.map((f, idx) => (
-            <div
-              key={idx}
-              className={`${f.color} rounded-2xl p-6 text-center shadow-xl flex flex-col`}
-            >
-              <h3 className="text-xl font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm text-gray-200">{f.description}</p>
+        <div className="flex w-[80%]">
+          {isLoggedin ? (
+            <div className="flex gap-5 items-center w-full">
+              <button
+                className="bg-[#080A31] py-2 rounded-lg text-white/80 text-md shadow-lg w-full text-center"
+                onClick={()=>handlelogout()}
+              >
+                Logout
+              </button>
+              <NavLink
+                to="/idea"
+                className="bg-[#080A31] py-2 rounded-lg text-white/80 text-md shadow-lg w-full text-center"
+                onClick={() => setideaid("")}
+              >
+                New idea
+              </NavLink>
             </div>
-          ))}
+          ) : (
+            <div className="flex gap-5 items-center w-full">
+              <NavLink
+                to="/login"
+                className="w-full bg-[#080A31] py-2 rounded-lg text-white/80 text-md shadow-lg text-center"
+              >
+                Get Started
+              </NavLink>
+              <NavLink
+                to="/login"
+                className="w-full bg-[#080A31] py-2 rounded-lg text-white/80 text-md shadow-lg text-center"
+              >
+                New idea
+              </NavLink>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="py-16 px-6">
-        <h2 className="text-center text-3xl font-bold mb-10">
+      <div className="flex flex-col items-center">
+        <div className="text-center text-4xl font-bold mb-12">
+          Our Competitive Advantage
+        </div>
+        <div className="grid grid-cols-2 gap-x-18 gap-y-7 w-[60%]">
+          {features.map((f, idx) => {
+            const IconComponent = Icons[f.icon];
+            return (
+              <div
+                key={idx}
+                className={`flex flex-col items-center ${f.color} rounded-2xl px-10 py-8 text-center gap-5`}
+              >
+                <IconComponent size={35} className="text-white/80" />
+                <div className="flex flex-col items-center gap-1">
+                  <h3 className="text-xl font-semibold">{f.title}</h3>
+                  <p className="mt-2 text-sm text-gray-200">{f.description}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="py-35 px-6">
+        <h2 className="text-center text-3xl font-bold mb-8">
           What Others Say About Us
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-30 mx-auto">
           {whatotherssay.map((t, idx) => (
-            <div key={idx} className="bg-purple-800 rounded-2xl p-6 shadow-lg">
-              <img
-                src={t.profile}
-                className="w-16 h-16 rounded-full border-2 border-indigo-400 mb-4"
-              />
-              <p className="italic">"{t.quote}"</p>
-              <p className="mt-4 font-semibold">- {t.name}</p>
+            <div
+              key={idx}
+              className=" flex flex-col items-center gap-6 bg-[#242254] text-center rounded-2xl p-6 shadow-lg"
+            >
+              <p className="italic text-lg text-white/70">"{t.quote}"</p>
+              <div className="items-center flex flex-col gap-2 text-white/50">
+                <img src={t.profile} className="w-10 h-10 rounded-full" />
+                <p className="font-semibold">{t.name}</p>
+              </div>
             </div>
           ))}
         </div>
       </div>
-
-      <div
-        className="py-12 px-8 text-white"
-        style={{ backgroundImage: "url('/images/bg2.png')" }}
-      >
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <img src="/images/logo.png" className="w-8 h-8" />
-              <h3 className="text-2xl font-bold text-indigo-400">Lumino</h3>
-            </div>
-            <p className="mt-2 text-gray-300">From Spark to Structure</p>
-            <div className="flex gap-4 mt-4">
-              <FaTwitter className="text-xl hover:text-indigo-300" />
-              <FaInstagram className="text-xl hover:text-indigo-300" />
-              <FaLinkedin className="text-xl hover:text-indigo-300" />
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-3">Products</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li>
-                <Link to="/overview" className="hover:text-indigo-300">
-                  Overview
-                </Link>
-              </li>
-              <li>
-                <Link to="/notebook" className="hover:text-indigo-300">
-                  Notebook
-                </Link>
-              </li>
-              <li>
-                <Link to="/collaboration" className="hover:text-indigo-300">
-                  Collaboration
-                </Link>
-              </li>
-              <li>
-                <Link to="/mindmaps" className="hover:text-indigo-300">
-                  Mind Maps
-                </Link>
-              </li>
-              <li>
-                <Link to="/ai-assistance" className="hover:text-indigo-300">
-                  AI Assistance
-                </Link>
-              </li>
-              <li>
-                <Link to="/chat" className="hover:text-indigo-300">
-                  Real-time Chat
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-3">Support</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li>
-                <Link to="/contact" className="hover:text-indigo-300">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link to="/docs" className="hover:text-indigo-300">
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <Link to="/chat-support" className="hover:text-indigo-300">
-                  Chat
-                </Link>
-              </li>
-              <li>
-                <Link to="/faq" className="hover:text-indigo-300">
-                  FAQs
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-3">Legal</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li>
-                <Link to="/terms" className="hover:text-indigo-300">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="hover:text-indigo-300">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/cookies" className="hover:text-indigo-300">
-                  Cookie Settings
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <Footer />
     </div>
   );
 }

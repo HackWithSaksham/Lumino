@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export const AppContent = createContext();
 export const AppContextProvider = (props) => {
@@ -14,6 +15,7 @@ export const AppContextProvider = (props) => {
     return localStorage.getItem("ideaid") || "";
   });
 
+  const navigate = useNavigate();
   useEffect(() => {
     if (ideaid) localStorage.setItem("ideaid", ideaid);
   }, [ideaid]);
@@ -25,7 +27,13 @@ export const AppContextProvider = (props) => {
         setIsLoggedin(true);
         await getUserData();
       }
+      else {
+      setIsLoggedin(false);
+      setUserData(null);
+    }
     } catch (error) {
+      setIsLoggedin(false);
+    setUserData(null);
       console.log(error.message);
     }
   };
@@ -46,6 +54,22 @@ export const AppContextProvider = (props) => {
     setbadges(result);
   };
 
+  const handlelogout = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/user/logout`);
+      if (data.success) {
+        setIsLoggedin(false);
+        setUserData(null);
+        navigate("/");
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     console.log("AppContextProvider useEffect called");
     getAuthState(), getAllBadges();
@@ -53,6 +77,7 @@ export const AppContextProvider = (props) => {
 
   const value = {
     ideaid,
+    handlelogout,
     setideaid,
     backendUrl,
     isLoggedin,
