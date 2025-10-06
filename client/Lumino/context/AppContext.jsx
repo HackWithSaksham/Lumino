@@ -10,6 +10,13 @@ export const AppContextProvider = (props) => {
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [userData, setUserData] = useState(null);
   const [allbadges, setbadges] = useState([]);
+  const [ideaid, setideaid] = useState(() => {
+    return localStorage.getItem("ideaid") || "";
+  });
+
+  useEffect(() => {
+    if (ideaid) localStorage.setItem("ideaid", ideaid);
+  }, [ideaid]);
 
   const getAuthState = async () => {
     try {
@@ -41,10 +48,12 @@ export const AppContextProvider = (props) => {
 
   useEffect(() => {
     console.log("AppContextProvider useEffect called");
-    getAuthState(),getAllBadges();
+    getAuthState(), getAllBadges();
   }, []);
 
   const value = {
+    ideaid,
+    setideaid,
     backendUrl,
     isLoggedin,
     setIsLoggedin,

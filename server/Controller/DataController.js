@@ -50,20 +50,20 @@ export const registeruser = async (req, res) => {
   }
 };
 
-export const isauth = async(req,res)=>{
+export const isauth = async (req, res) => {
   try {
     const user = req.user;
     if (user) {
       return res.json({
-        success: true
+        success: true,
       });
     } else {
-      return res.json({ success: false});
+      return res.json({ success: false });
     }
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
-}
+};
 
 export const userdata = async (req, res) => {
   try {
@@ -78,12 +78,12 @@ export const userdata = async (req, res) => {
           name: user.name,
           rank: user.rank,
           profileimage: user.profileimage,
-          passion:user.passion,
-          streak:user.streak,
-          country:user.country,
-          badges:user.badges,
-          ideas:user.ideas,
-          contribution: user.contribution
+          passion: user.passion,
+          streak: user.streak,
+          country: user.country,
+          badges: user.badges,
+          ideas: user.ideas,
+          contribution: user.contribution,
         },
       });
     } else {
@@ -171,6 +171,7 @@ export const insertidea = async (req, res) => {
       title,
       category,
       description,
+      authorid: user._id,
       author: user.name,
       authorimage: user.profileimage,
     });
@@ -180,14 +181,57 @@ export const insertidea = async (req, res) => {
     user.ideas = [...user.ideas, idea._id];
     await idea.save();
     await user.save();
-    return res.json({ success: true, message: "Idea created" });
+    return res.json({
+      success: true,
+      message: "Idea created",
+      ideaid: idea._id,
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const updateidea = async (req, res) => {
+  try {
+    const user = req.user;
+    const { title, description, category, id } = req.body;
+
+    const idea = await ideamodel.findById(id);
+
+    if (!idea) {
+      return res.json({ success: false, message: "Idea not found" });
+    }
+    if (idea.authorid.toString() !== user._id.toString()) {
+      return res.json({ success: false, message: "Not authorized" });
+    }
+
+    idea.title = title;
+    idea.description = description;
+    idea.category = category;
+
+    await idea.save();
+
+    return res.json({ success: true, message: "Idea updated", idea });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const getidea = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const idea = await ideamodel.findById(id);
+    if (!idea) {
+      return res.json({ success: false, message: "Idea not found" });
+    }
+    return res.json({ success: true, idea });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
 };
 
 export const removeidea = async (req, res) => {
-  const {ideaid} = req.body;
+  const { ideaid } = req.body;
 
   try {
     await ideamodel.findByIdAndDelete(ideaid);
@@ -197,44 +241,48 @@ export const removeidea = async (req, res) => {
   }
 };
 
-export const addcontributor = async(req,res)=>{
-  const {ideaid} = req.body;
+export const addcontributor = async (req, res) => {
+  const { ideaid } = req.body;
   const user = req.user;
 
   const idea = await ideamodel.findById(ideaid);
   try {
-    if(!idea.contributors)idea.contributors=[];
-  if (!idea.contributors.includes(user._id)) {
+    if (!idea.contributors) idea.contributors = [];
+    if (!idea.contributors.includes(user._id)) {
       idea.contributors.push(user._id);
     }
-  await idea.save();
-  return res.json({success:true,message:"Contribution Added"});
+    await idea.save();
+    return res.json({ success: true, message: "Contribution Added" });
   } catch (error) {
-    res.json({success:false,message:error.message});
+    res.json({ success: false, message: error.message });
   }
-}
+};
 
-export const addbadge = async(req,res)=>{
-  const {title,description,popularity,percentage,icon} = req.body;
-  if(!title || !description || !popularity || !percentage || !icon){
-    return res.json({success:false,message:"Input fields required"});
+export const addbadge = async (req, res) => {
+  const { title, description, popularity, percentage, icon } = req.body;
+  if (!title || !description || !popularity || !percentage || !icon) {
+    return res.json({ success: false, message: "Input fields required" });
   }
   try {
     const badge = new badgemodel({
-    title,description,popularity,percentage,icon
-  })
-  await badge.save();
-  return res.json({success:true,message:"Badge added"});
+      title,
+      description,
+      popularity,
+      percentage,
+      icon,
+    });
+    await badge.save();
+    return res.json({ success: true, message: "Badge added" });
   } catch (error) {
-    res.json({success:false,message:error.message})
+    res.json({ success: false, message: error.message });
   }
-}
+};
 
-export const allBadges = async(req,res)=>{
+export const allBadges = async (req, res) => {
   try {
     const badges = await badgemodel.find();
     return res.json(badges);
   } catch (error) {
-    res.json({success:false,message:error.message});
+    res.json({ success: false, message: error.message });
   }
-}
+};
