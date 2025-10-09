@@ -11,9 +11,11 @@ export const AppContextProvider = (props) => {
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [userData, setUserData] = useState(null);
   const [allbadges, setbadges] = useState([]);
+  const [ideaslist,setideaslist] = useState([]);
   const [ideaid, setideaid] = useState(() => {
     return localStorage.getItem("ideaid") || "";
   });
+  const [contribution, setcontribution] = useState(null);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -70,12 +72,21 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  const getideaslist = async()=>{
+    const {data} = await axios.post(`${backendUrl}/api/user/ideaslist`,
+      {withCredentials:true}
+    );
+    setideaslist(data.results);
+  }
+
   useEffect(() => {
-    console.log("AppContextProvider useEffect called");
-    getAuthState(), getAllBadges();
+    getAuthState(), getAllBadges(),getideaslist();
   }, []);
 
   const value = {
+    ideaslist,
+    contribution,
+    setcontribution,
     ideaid,
     handlelogout,
     setideaid,

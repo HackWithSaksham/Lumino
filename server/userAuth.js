@@ -15,11 +15,37 @@ const userAuth = async (req, res, next) => {
       .populate("badges")
       .populate({
         path: "contribution",
-        populate: {
-          path: "contributors",
-          model: "user",
-          select: "name profileimage country passion",
+        populate: [{
+          path:"ideaid",
+          model:"idea",
+          populate: {
+            path: "contributors",
+            model: "user",
+            select: "name profileimage country passion",
+          },
         },
+        {
+          path:"history",
+          model:"history"
+        }
+      ]
+      })
+      .populate({
+        path: "requests",
+        populate: [{
+          path:"ideaid",
+          model:"idea",
+          populate: {
+            path: "contributors",
+            model: "user",
+            select: "name profileimage country passion",
+          },
+        },
+        {
+          path:"history",
+          model:"history"
+        }
+      ]
       });
     if (!user) {
       return res.json({ success: false, message: "User Not Found" });

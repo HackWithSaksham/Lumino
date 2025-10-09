@@ -3,12 +3,17 @@ import * as Icons from "lucide-react";
 import { useContext } from "react";
 import { AppContent } from "../context/AppContext";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 const Profile = () => {
   const [activetab, setactivetab] = useState("ideas");
   const [searchvalue, setsearchvalue] = useState("");
   const [searchcurrent, setsearchcurrent] = useState("all");
   const [filteredIdeas, setFilteredIdeas] = useState([]);
-  const { userData, backendUrl, allbadges } = useContext(AppContent);
+  const navigate = useNavigate();
+  const { userData, backendUrl, allbadges, ideaid, setideaid, setUserData ,setcontribution} =
+    useContext(AppContent);
   const formatContributors = (num) => {
     if (num < 10) return `${num} Contributors`;
     if (num < 1000) {
@@ -26,7 +31,10 @@ const Profile = () => {
       millions.endsWith(".0") ? millions.slice(0, -2) : millions
     }M+ Contributors`;
   };
-
+  const handlecontribution = async(contribe)=>{
+    setcontribution(contribe);
+    navigate("/contribution");
+  }
   const {
     profileimage = "",
     name = "Unknown User",
@@ -37,12 +45,14 @@ const Profile = () => {
     streak = 0,
     ideas = [],
     contribution = [],
+    requests=[]
   } = userData || {};
   useEffect(() => {
     if (ideas?.length > 0) {
       setFilteredIdeas(ideas);
     }
   }, [ideas]);
+  useEffect(()=>{},[userData])
   if (!userData) {
     return (
       <div className="flex justify-center items-center h-screen text-white">
@@ -66,6 +76,29 @@ const Profile = () => {
     });
     setFilteredIdeas(results);
   };
+
+  const handleideadelete = async (idea) => {
+    try {
+      const { data } = await axios.post(`${backendUrl}/api/user/removeidea`, {
+        ideaid: idea._id,userId:userData._id
+      });
+      if (data.success) {
+        toast.success(data.message);
+        const result = userData.ideas.filter((i) => i._id != idea._id);
+        setUserData({ ...userData, ideas: result });
+      } else {
+        toast.error(data.error);
+        return;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  const handleideamodify = async (idea) => {
+    setideaid(idea._id);
+    navigate("/idea");
+  };
+
   return (
     <div className="flex flex-col px-50 pt-20 gap-22 bg-[#0D0B1A] min-h-screen text-white">
       <div className="flex justify-between">
@@ -204,9 +237,15 @@ const Profile = () => {
                           </div>
                         </div>
                         <div className="flex gap-4">
-                          <Icons.Trash2 className="w-5 h-5" />
-                          <Icons.Pencil className="w-5 h-5" />
-                          <Icons.Star className="w-5 h-5" />
+                          <Icons.Trash2
+                            className="w-5 h-5 hover:cursor-pointer"
+                            onClick={() => handleideadelete(idea)}
+                          />
+                          <Icons.Pencil
+                            className="w-5 h-5 hover:cursor-pointer"
+                            onClick={() => handleideamodify(idea)}
+                          />
+                          <Icons.Star className="w-5 h-5 hover:cursor-pointer" />
                         </div>
                       </div>
                       <div>{idea.description}</div>
@@ -230,7 +269,8 @@ const Profile = () => {
           {activetab == "contribution" && (
             <div className="flex flex-col">
               <div className="grid grid-cols-3 gap-x-15 gap-y-15 items-center justify-center">
-                {contribution.map((idea, i) => {
+                {contribution.map((contribe, i) => {
+                  const idea = contribe.ideaid;
                   const createdDate = new Date(
                     idea.createdAt
                   ).toLocaleDateString("en-IN", {
@@ -279,23 +319,22 @@ const Profile = () => {
                           <div className="text-[16px] flex items-center gap-2">
                             <div className="flex items-center gap-1">
                               {idea.contributors.slice(0, 3).map((user, i) => {
-                                return(
-                                <img
-                                  key={i}
-                                  src={`${backendUrl}${user.profileimage}`}
-                                  alt={user.name}
-                                  className="w-6 h-6 rounded-full border border-[#261f44]"
-                                />
-                                )}
-                              )}
-                              
+                                return (
+                                  <img
+                                    key={i}
+                                    src={`${backendUrl}${user.profileimage}`}
+                                    alt={user.name}
+                                    className="w-6 h-6 rounded-full border border-[#261f44]"
+                                  />
+                                );
+                              })}
                             </div>
                             <p className="text-[14px] text-white/70">
                               {formatContributors(idea.contributors.length)}
                             </p>
                           </div>
                         </div>
-                        <div className="bg-gradient-to-r from-[#430669] via-[#6b12a2] to-[#690da2] py-2 text-[16px] text-white/70 rounded-md text-center">
+                        <div className="bg-gradient-to-r from-[#430669] via-[#6b12a2] to-[#690da2] py-2 text-[16px] text-white/70 rounded-md text-center hover:cursor-pointer" onClick={()=>handlecontribution(contribe)}>
                           View Contribution
                         </div>
                       </div>
@@ -341,7 +380,7 @@ const Profile = () => {
                                   "polygon(50% 0% , 0% 25% , 0% 75% , 50% 100% , 100% 75% , 100% 25%)",
                               }}
                             >
-                              <Icon size={37} className="text-white/80"/>
+                              <Icon size={37} className="text-white/80" />
                             </div>
                           </div>
                           <div className="flex flex-col gap-2">
@@ -349,7 +388,9 @@ const Profile = () => {
                               {badge.title}
                             </p>
                             <div className="flex flex-col gap-1">
-                              <p className="text-[14px] text-white/80">{badge.description}</p>
+                              <p className="text-[14px] text-white/80">
+                                {badge.description}
+                              </p>
                               <p
                                 className={`text-[10px] px-5 py-0.5 rounded-2xl w-fit text-white/80 ${
                                   badge.popularity === "Common"
@@ -374,7 +415,9 @@ const Profile = () => {
                 )}
               </div>
               <div className="flex flex-col">
-                <p className="text-2xl font-bold text-white/70">All Achievements</p>
+                <p className="text-2xl font-bold text-white/70">
+                  All Achievements
+                </p>
                 <div className="grid grid-cols-3 gap-x-3 gap-y-10">
                   {allbadges.data.map((badge, i) => {
                     const Icon = Icons[badge.icon];
@@ -410,9 +453,13 @@ const Profile = () => {
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <p className="text-[18px] font-bold text-white/80">{badge.title}</p>
+                          <p className="text-[18px] font-bold text-white/80">
+                            {badge.title}
+                          </p>
                           <div className="flex flex-col gap-1">
-                            <p className="text-[14px] text-white/80">{badge.description}</p>
+                            <p className="text-[14px] text-white/80">
+                              {badge.description}
+                            </p>
                             <p
                               className={`text-[10px] px-5 py-0.5 rounded-2xl w-fit text-white/80 ${
                                 badge.popularity === "Common"

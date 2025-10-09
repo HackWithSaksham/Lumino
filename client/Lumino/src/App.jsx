@@ -6,6 +6,9 @@ import Profile from '../pages/Profile';
 import Login from '../pages/Login';
 import { ToastContainer } from 'react-toastify';
 import Idea from '../pages/Idea';
+import Contribution from '../pages/Contribution';
+import Requests from '../pages/Requests';
+import AddContribution from '../pages/AddContribution';
 
 function App() {
 
@@ -17,6 +20,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/idea" element={<Idea />} />
+        <Route path="/contribution" element={<Contribution />} />
+        <Route path="/requests" element={<Requests />} />
+        <Route path="/addcontribution" element={<AddContribution />} />
       </Routes>
     </div>
   )
