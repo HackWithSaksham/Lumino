@@ -5,7 +5,7 @@ import { AppContent } from "../context/AppContext";
 import { FaSmile, FaImage, FaVideo, FaMicrophone } from "react-icons/fa";
 import { RiFileGifFill } from "react-icons/ri";
 import { ChevronDown } from "lucide-react";
-
+import Navbar from "../components/Navbar";
 export default function Idea() {
   const [privacy, setPrivacy] = useState("Private");
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -18,7 +18,7 @@ export default function Idea() {
   const [status, setStatus] = useState("Saved");
 
   const originalNoteRef = useRef("");
-  const { backendUrl, ideaid, setideaid } = useContext(AppContent);
+  const { backendUrl, ideaid, setideaid,getUserData } = useContext(AppContent);
 
   const privacyOptions = ["Private", "Public"];
   const categories = ["Fantasy", "Comedy", "Science Fiction", "Essay", "Mystery", "Romance", "Biography"];
@@ -32,7 +32,6 @@ export default function Idea() {
           { withCredentials: true }
         );
         setideaid(data.ideaid);
-        console.log(data.ideaid);
       }
       const { data } = await axios.post(
         `${backendUrl}/api/user/getidea`,
@@ -47,8 +46,8 @@ export default function Idea() {
     };
 
     initialidea();
+    getUserData();
   }, [ideaid]);
-
   useEffect(() => {
     if (!ideaid) return;
     const updatingidea = async () => {
@@ -69,6 +68,7 @@ export default function Idea() {
       }
     };
     const timeout = setTimeout(updatingidea, 800);
+    getUserData();
     return () => clearTimeout(timeout);
   }, [text, category, title]);
 
@@ -97,77 +97,20 @@ export default function Idea() {
       alert("Speech recognition not supported in this browser.");
     }
   }
+  getUserData();
   return () => recognition?.stop();
   }, [listening]);
 
   useEffect(() => {
     originalNoteRef.current = text;
+    getUserData();
   }, [text]);
 
   return (
     <div className="min-h-screen bg-[#070C2B] text-white flex flex-col">
-      <div className="flex justify-between items-center px-8 py-6">
-        <div className="flex items-center gap-2">
-          <img src="/images/logo.png" className="w-10 h-10" />
-          <div className="text-2xl font-bold">Lumino</div>
-        </div>
-        <ul className="hidden md:flex gap-8 text-lg">
-          <li>
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              Home
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              About
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/features"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              Features
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/faq"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-indigo-400 font-semibold"
-                  : "hover:text-indigo-300"
-              }
-            >
-              FAQ
-            </NavLink>
-          </li>
-        </ul>
-        <Link to="/profile">
-          <img src="/images/user.png" className="w-8 h-8 rounded-full" />
-        </Link>
-      </div>
+      <Navbar />
 
-      <div className="flex flex-1 px-6 pb-6 pt-4 gap-6">
+      <div className="flex flex-1 px-30 pb-6 pt-4 gap-6">
         <aside className="w-64 bg-[#1B1537] p-6 flex flex-col justify-between border-r border-[#2A2D5C] rounded-lg sticky top-6 h-[calc(100vh-6rem)]">
           <div>
             <h2 className="text-lg font-semibold mb-6 text-gray-200">Your Gallery</h2>

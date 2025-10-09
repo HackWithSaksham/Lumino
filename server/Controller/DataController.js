@@ -1,6 +1,12 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { badgemodel, ideamodel, usermodel } from "../Models/model.js";
+import {
+  badgemodel,
+  contributionmodel,
+  historymodel,
+  ideamodel,
+  usermodel,
+} from "../Models/model.js";
 import transporter from "../config/NodeMailer.js";
 
 export const registeruser = async (req, res) => {
@@ -84,6 +90,7 @@ export const userdata = async (req, res) => {
           badges: user.badges,
           ideas: user.ideas,
           contribution: user.contribution,
+          requests: user.requests,
         },
       });
     } else {
@@ -231,10 +238,21 @@ export const getidea = async (req, res) => {
 };
 
 export const removeidea = async (req, res) => {
-  const { ideaid } = req.body;
+  const { ideaid, userId } = req.body;
 
   try {
     await ideamodel.findByIdAndDelete(ideaid);
+    if (userId) {
+      console.log("userid found");
+      await usermodel.findByIdAndUpdate(
+        userId,
+        {
+          $pull: { ideas: ideaid },
+        },
+        { new: true }
+      );
+    }
+    console.log("idea found");
     return res.json({ success: true, message: "Idea deleted" });
   } catch (error) {
     res.json({ success: false, message: error.message });
@@ -252,6 +270,57 @@ export const addcontributor = async (req, res) => {
       idea.contributors.push(user._id);
     }
     await idea.save();
+    return res.json({ success: true, message: "Contribution Added" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const addcontribution = async (req, res) => {
+  try {
+    const user = req.user;
+    const userid = user._id;
+    
+    const { ideaid, newcontent, changeSummary, ownerid} = req.body;
+    
+    const idea = await ideamodel.findById(ideaid);
+    
+    const previouscontent = idea.description;
+    const owner = await usermodel.findById(ownerid);
+    console.log({
+  ideaid,
+  ownerid,
+  ideaExists: !!idea,
+  ownerExists: !!owner,
+  userContributions: user.contribution.length,
+});
+    const history = await historymodel.create({
+      previousContent: previouscontent,
+      newContent: newcontent,
+      changeSummary: changeSummary || "Edited content",
+      requeststatus: "Pending",
+    });
+    if (!idea.contributors) idea.contributors = [];
+    if (!idea.contributors.includes(userid)) {
+      idea.contributors.push(userid);
+    }
+    await idea.save();
+    let contribution = user.contribution.find(
+      (contri) => contri.ideaid._id.toString() === ideaid
+    );
+    if (!contribution) {
+      contribution = await contributionmodel.create({
+        ideaid,
+        history: [history._id],
+      });
+      user.contribution = [...user.contribution, contribution._id];
+      owner.requests = [...owner.requests, contribution._id];
+      await user.save();
+      await owner.save();
+    } else {
+      contribution.history = [...contribution.history, history._id];
+      await contribution.save();
+    }
     return res.json({ success: true, message: "Contribution Added" });
   } catch (error) {
     res.json({ success: false, message: error.message });
@@ -282,6 +351,123 @@ export const allBadges = async (req, res) => {
   try {
     const badges = await badgemodel.find();
     return res.json(badges);
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const acceptcont = async (req, res) => {
+  try {
+    const { contributionid, historyid } = req.body;
+    const user = req.user;
+
+    const contribution = await contributionmodel
+      .findById(contributionid)
+      .populate("ideaid")
+      .populate("history");
+
+    if (!contribution)
+      return res.json({ success: false, message: "Contribution not found" });
+
+    const history = contribution.history.find(
+      (h) => h._id.toString() === historyid
+    );
+    if (!history)
+      return res.json({ success: false, message: "History not found" });
+
+    history.requeststatus = "Accepted";
+    await history.save();
+
+    const idea = await ideamodel.findById(contribution.ideaid._id);
+    if (!idea) return res.json({ success: false, message: "Idea not found" });
+
+    idea.description = history.newContent;
+    await idea.save();
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Request accepted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const rejectcont = async (req, res) => {
+  try {
+    const { contributionid, historyid } = req.body;
+
+    const contribution = await contributionmodel
+      .findById(contributionid)
+      .populate("history");
+
+    if (!contribution)
+      return res.json({ success: false, message: "Contribution not found" });
+
+    const history = contribution.history.find(
+      (h) => h._id.toString() === historyid
+    );
+    if (!history)
+      return res.json({ success: false, message: "History not found" });
+
+    history.requeststatus = "Rejected";
+    await history.save();
+
+    res.json({ success: true, message: "Request rejected successfully" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const revertcont = async (req, res) => {
+  try {
+    const { contributionid, historyid } = req.body;
+    const user = req.user;
+
+    const contribution = await contributionmodel
+      .findById(contributionid)
+      .populate("ideaid")
+      .populate("history");
+
+    if (!contribution)
+      return res.json({ success: false, message: "Contribution not found" });
+
+    const history = contribution.history.find(
+      (h) => h._id.toString() === historyid
+    );
+    if (!history)
+      return res.json({ success: false, message: "History not found" });
+
+    history.requeststatus = "Pending";
+    await history.save();
+
+    const idea = await ideamodel.findById(contribution.ideaid._id);
+    if (!idea) return res.json({ success: false, message: "Idea not found" });
+
+    idea.description = history.previousContent;
+    await idea.save();
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Request accepted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const ideaslist = async (req, res) => {
+  try {
+    const user = req.user;
+    const contlist = await ideamodel.find();
+    const results = contlist.filter(
+      (idea) => idea.authorid.toString() !== user._id.toString()
+    );
+    return res.json({ success: true, results });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }

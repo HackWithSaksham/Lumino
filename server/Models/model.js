@@ -13,9 +13,9 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   badges: [{ type: mongoose.Schema.Types.ObjectId, ref: "badge" }],
   ideas: [{ type: mongoose.Schema.Types.ObjectId, ref: "idea" }],
-  contribution: [{ type: mongoose.Schema.Types.ObjectId, ref: "idea" }],
+  contribution: [{ type: mongoose.Schema.Types.ObjectId, ref: "contribution" }],
+  requests:[{ type: mongoose.Schema.Types.ObjectId, ref: "contribution" }],
 });
-
 export const usermodel =
   mongoose.models["user"] || mongoose.model("user", UserSchema);
 
@@ -32,9 +32,32 @@ const IdeaSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 export const ideamodel =
   mongoose.models["idea"] || mongoose.model("idea", IdeaSchema);
+
+const HistorySchema = new mongoose.Schema({
+  changeSummary: { type: String },
+  previousContent: { type: String },
+  newContent: { type: String },
+  requeststatus:{type:String},
+});
+export const historymodel =
+  mongoose.models["history"] || mongoose.model("history", HistorySchema);
+
+
+  
+const ContributionSchema = new mongoose.Schema(
+  {
+    ideaid: { type: mongoose.Schema.Types.ObjectId, ref: "idea" },
+    history: [{ type: mongoose.Schema.Types.ObjectId, ref: "history" }],
+  },
+  { timestamps: true }
+);
+export const contributionmodel =
+  mongoose.models["contribution"] ||
+  mongoose.model("contribution", ContributionSchema);
+
+
 
 const BadgeSchema = new mongoose.Schema(
   {
@@ -46,6 +69,5 @@ const BadgeSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 export const badgemodel =
   mongoose.models["badge"] || mongoose.model("badge", BadgeSchema);

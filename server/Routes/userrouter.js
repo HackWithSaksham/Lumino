@@ -13,6 +13,11 @@ import {
   allBadges,
   updateidea,
   getidea,
+  addcontribution,
+  acceptcont,
+  rejectcont,
+  revertcont,
+  ideaslist,
 } from "../Controller/DataController.js";
 import multer from "multer";
 import path from "path";
@@ -46,7 +51,13 @@ userrouter.post("/updateidea", userAuth, updateidea);
 userrouter.post("/removeidea", removeidea);
 userrouter.post("/getidea", getidea);
 userrouter.post("/addcontributor", userAuth, addcontributor);
+userrouter.post("/addcontribution", userAuth, addcontribution);
 userrouter.post("/addbadge", addbadge);
 userrouter.get("/allbadge", allBadges);
+userrouter.post("/acceptrequest", userAuth,acceptcont);
+userrouter.post("/rejectrequest", userAuth,rejectcont);
+userrouter.post("/revertrequest", userAuth,revertcont);
+userrouter.post("/ideaslist", userAuth,ideaslist);
+
 
 export default userrouter;
