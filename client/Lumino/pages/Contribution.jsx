@@ -1,113 +1,166 @@
 import React, { useContext, useEffect, useState } from "react";
 import { diffLines } from "diff";
 import { AppContent } from "../context/AppContext";
+import Navbar from "../components/Navbar";
+import { motion } from "framer-motion";
 
 const Contribution = () => {
-  const { contribution } = useContext(AppContent);
+  const { userData, historyid } = useContext(AppContent);
 
-  const [category, setCategory] = useState("");
+  const [collab, setCollab] = useState([]);
+  const [filteredCollab, setFilteredCollab] = useState([]);
   const [title, setTitle] = useState("");
-  const [previouscontent, setpreviouscontent] = useState("");
-  const [newcontent, setnewcontent] = useState("");
+  const [category, setCategory] = useState("");
+  const [previouscontent, setPreviousContent] = useState("");
+  const [newcontent, setNewContent] = useState("");
   const [text, setText] = useState([]);
   const [status, setStatus] = useState("");
-  console.log(contribution);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [activeId, setActiveId] = useState(historyid || null);
+
   useEffect(() => {
-    if (!contribution) return;
+    if (!userData) return;
 
-    setCategory(contribution.ideaid?.category || "");
-    setTitle(contribution.ideaid?.title || "");
+    const contribution = userData?.contribution || [];
+    const userContribs = contribution.flatMap((contrib) =>
+      contrib.history.map((history) => ({
+        id: history._id,
+        title: contrib.ideaid.title,
+        changeSummary: history.changeSummary,
+        date: history.createdAt,
+        requeststatus: history.requeststatus,
+        category: contrib.ideaid.category,
+        previousContent: history.previousContent,
+        newContent: history.newContent,
+      }))
+    );
 
-    if (contribution.history?.length > 0) {
-      console.log("Has history");
-      const firstChange = contribution.history[0];
-      const prev = firstChange.previousContent || "";
-      const next = firstChange.newContent || "";
-      if(prev != "")console.log("had previous")
-      setpreviouscontent(prev);
-      setnewcontent(next);
-      setStatus(firstChange.requeststatus || "");
+    setCollab(userContribs);
+    setFilteredCollab(userContribs);
 
-      const diff = diffLines(prev, next);
-      setText(diff);
+    const current = userContribs.find((item) => item.id === historyid);
+    if (current) handleChangeData(current);
+  }, [userData, historyid]);
+
+  useEffect(() => {
+    let filtered = collab.filter((c) =>
+      (c.changeSummary || c.title).toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter((c) => c.category === selectedCategory);
     }
-  }, [contribution]);
+    setFilteredCollab(filtered);
+  }, [searchQuery, selectedCategory, collab]);
 
-  const handlechangedata = (contri) => {
-    const prev = contri.previousContent || "";
-    const next = contri.newContent || "";
-    const diff = diffLines(prev, next);
-
-    setpreviouscontent(prev);
-    setnewcontent(next);
+  const handleChangeData = (contri) => {
+    setActiveId(contri.id);
+    setTitle(contri.title);
+    setCategory(contri.category);
+    setPreviousContent(contri.previousContent || "");
+    setNewContent(contri.newContent || "");
     setStatus(contri.requeststatus || "");
+
+    const diff = diffLines(contri.previousContent || "", contri.newContent || "");
     setText(diff);
   };
 
-  if (!contribution) {
-    return (
-      <div className="text-gray-300 p-8 text-center">
-        No contribution selected.
-      </div>
-    );
-  }
+  const categories = ["All", ...new Set(collab.map((c) => c.category))];
 
   return (
-    <div className="flex flex-row min-h-screen bg-[#0D0F2D] text-gray-100">
-      <aside className="w-1/4 bg-[#151136] p-6 border-r border-gray-800">
-        <h2 className="text-lg font-semibold mb-6 text-gray-200">
-          Your Requests
-        </h2>
-        <div className="flex flex-col gap-4 text-gray-300">
-          {contribution.history?.length > 0 ? (
-            contribution.history.map((contri, idx) => (
-              <div
-                key={idx}
-                onClick={() => handlechangedata(contri)}
-                className="p-3 bg-[#1F1B44] hover:bg-[#2B2566] rounded-lg cursor-pointer transition-all"
-              >
-                <p className="truncate text-sm text-gray-300">
-                  {contri.changeSummary || "Change " + (idx + 1)}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {contri.requeststatus || "Pending"}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No changes yet.</p>
-          )}
-        </div>
-      </aside>
+    <div className="relative min-h-screen bg-[#0D0F2D] text-gray-100">
+      <div className="fixed top-0 left-0 w-full z-50">
+        <Navbar />
+      </div>
 
-      <main className="flex-1 bg-[#1B1537] p-8 flex flex-col gap-6">
-        <div className="flex items-center gap-6">
-          <div className="bg-[#0D0F2D] text-gray-200 px-4 py-2 rounded-md w-1/3">
-            {title}
-          </div>
-          <span className="text-gray-400">{category}</span>
-        </div>
+      <div className="flex pt-24">
+<aside className="w-[30%] bg-[#151136] pl-12 p-6 border-r border-gray-800 min-h-screen">
+  <h2 className="text-lg font-semibold mb-4 text-gray-200">Your Requests</h2>
 
-        <div className="flex-1 flex flex-col relative p-4 bg-[#0D0F2D] rounded-lg overflow-auto">
-          {text.map((part, i) => (
-            <pre
-              key={i}
-              className={`whitespace-pre-wrap px-2 py-1 rounded-md transition-all ${
-                part.added
-                  ? "bg-green-800/30"
-                  : part.removed
-                  ? "bg-red-800/30"
-                  : ""
-              }`}
-            >
-              {part.value}
-            </pre>
-          ))}
-          <span className="absolute bottom-2 right-4 text-sm text-gray-400">
-            Status: {status}
+  <input
+    type="text"
+    placeholder="Search..."
+    className="w-full mb-4 p-2 rounded-md bg-[#1F1B44] text-gray-200 placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+  />
+
+  <div className="flex flex-col gap-3 text-gray-300 overflow-y-auto max-h-[calc(100vh-250px)] scrollbar-glow">
+    {filteredCollab.length > 0 ? (
+      filteredCollab.map((contri, idx) => (
+        <motion.div
+          key={idx}
+          onClick={() => handleChangeData(contri)}
+          className={`p-3 rounded-lg cursor-pointer transition-all border-l-4 ${
+            activeId === contri.id
+              ? "border-purple-400 shadow-glow bg-[#2D2566]"
+              : "border-transparent hover:border-purple-500 hover:bg-[#2B2566]"
+          }`}
+          whileHover={{ scale: 1.02 }}
+        >
+          <p className="truncate text-sm">{contri.changeSummary || `Change ${idx + 1}`}</p>
+          <p className="text-xs text-gray-400">{contri.requeststatus || "Pending"}</p>
+          <span className="mt-1 inline-block px-2 py-0.5 text-xs rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+            {contri.category}
           </span>
-        </div>
-      </main>
+        </motion.div>
+      ))
+    ) : (
+      <p className="text-gray-500">No changes found.</p>
+    )}
+  </div>
+</aside>
+
+
+        <main className="flex-1 bg-[#1B1537] p-8 flex flex-col gap-6 min-h-screen">
+          <div className="flex items-center justify-between gap-6 mb-4">
+            <div className="bg-[#0D0F2D] text-gray-200 px-4 py-2 rounded-md w-1/2 font-semibold shadow-md">
+              {title || "Select a request"}
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="hidden md:inline text-gray-400 font-medium">Category:</span>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="bg-[#1F1B44] text-gray-200 px-3 py-1 rounded-lg shadow-inner border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+              >
+                {categories.map((cat, idx) => (
+                  <option key={idx} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex-1 relative p-4 bg-[#0D0F2D] rounded-lg overflow-auto shadow-inner scrollbar-glow">
+            {text.length > 0 ? (
+              text.map((part, i) => (
+                <pre
+                  key={i}
+                  className={`whitespace-pre-wrap px-2 py-1 rounded-md transition-all ${
+                    part.added
+                      ? "bg-green-900/40 text-green-200"
+                      : part.removed
+                      ? "bg-red-900/40 text-red-200"
+                      : "text-gray-200"
+                  }`}
+                >
+                  {part.value}
+                </pre>
+              ))
+            ) : (
+              <p className="text-gray-400">
+                Select a change from the sidebar to view differences.
+              </p>
+            )}
+
+            <span className="absolute bottom-2 right-4 text-sm text-gray-400 font-medium">
+              Status: {status || "Pending"}
+            </span>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

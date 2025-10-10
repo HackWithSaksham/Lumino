@@ -1,1 +1,69 @@
 @import "tailwindcss";
+
+:root {
+  --lumino-bg: #0b0a13;
+  --lumino-surface: #151122;
+  --lumino-card: #1b1530;
+  --lumino-text: #e7e3ff;
+  --lumino-muted: #9a8fc3;
+  --lumino-accent: #6c4cff;
+  --lumino-accent-2: #b26bff;
+  --lumino-glow: 0 0 12px rgba(129, 68, 255, 0.4);
+}
+
+.lumino-glass {
+  background: linear-gradient(180deg, rgba(48, 33, 82, 0.25), rgba(23, 18, 40, 0.4));
+  border: 1px solid rgba(135, 98, 255, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.lumino-outline {
+  box-shadow: 0 8px 24px rgba(80, 38, 160, 0.35);
+  border-radius: 14px;
+}
+
+.bg-lumino-page {
+  background: radial-gradient(circle at 20% 20%, #120f1f, #090712 70%);
+}
+
+.text-lumino-text {
+  color: var(--lumino-text);
+}
+
+.text-lumino-muted {
+  color: var(--lumino-muted);
+}
+
+.shadow-lumino-glow {
+  box-shadow: var(--lumino-glow);
+}
+
+.scrollbar-glow {
+  scrollbar-width: thin; 
+  scrollbar-color: #8A73F5 #1B1537; 
+}
+
+.scrollbar-glow::-webkit-scrollbar {
+  width: 10px; 
+}
+
+.scrollbar-glow::-webkit-scrollbar-track {
+  background: #1B1537;
+  border-radius: 8px;
+}
+
+.scrollbar-glow::-webkit-scrollbar-thumb {
+  background: #6B5DD5;
+  border-radius: 8px;
+  border: 2px solid #1B1537;
+  box-shadow: 0 0 6px #8A73F5; 
+}
+
+.scrollbar-glow::-webkit-scrollbar-thumb:hover {
+  background: #8A73F5;
+  box-shadow: 0 0 8px #8A73F5; 
+}
+
+.shadow-glow {
+  box-shadow: 0 0 6px #8A73F5;
+}

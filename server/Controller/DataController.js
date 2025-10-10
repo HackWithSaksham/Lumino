@@ -5,6 +5,8 @@ import {
   contributionmodel,
   historymodel,
   ideamodel,
+  sectionmodel,
+  UserMessage,
   usermodel,
 } from "../Models/model.js";
 import transporter from "../config/NodeMailer.js";
@@ -201,7 +203,7 @@ export const insertidea = async (req, res) => {
 export const updateidea = async (req, res) => {
   try {
     const user = req.user;
-    const { title, description, category, id } = req.body;
+    const { title, description, category, id, sectionid } = req.body;
 
     const idea = await ideamodel.findById(id);
 
@@ -211,12 +213,20 @@ export const updateidea = async (req, res) => {
     if (idea.authorid.toString() !== user._id.toString()) {
       return res.json({ success: false, message: "Not authorized" });
     }
-
-    idea.title = title;
-    idea.description = description;
-    idea.category = category;
-
-    await idea.save();
+    if (sectionid) {
+      const section = await sectionmodel.findById(sectionid);
+      if (!section) {
+        return res.json({ success: false, message: "Section not found" });
+      }
+      section.title = title;
+      section.content = description;
+      await section.save();
+    } else {
+      idea.title = title;
+      idea.description = description;
+      idea.category = category;
+      await idea.save();
+    }
 
     return res.json({ success: true, message: "Idea updated", idea });
   } catch (error) {
@@ -280,25 +290,19 @@ export const addcontribution = async (req, res) => {
   try {
     const user = req.user;
     const userid = user._id;
-    
-    const { ideaid, newcontent, changeSummary, ownerid} = req.body;
-    
+
+    const { ideaid, newcontent, changeSummary, ownerid } = req.body;
+
     const idea = await ideamodel.findById(ideaid);
-    
+
     const previouscontent = idea.description;
     const owner = await usermodel.findById(ownerid);
-    console.log({
-  ideaid,
-  ownerid,
-  ideaExists: !!idea,
-  ownerExists: !!owner,
-  userContributions: user.contribution.length,
-});
     const history = await historymodel.create({
       previousContent: previouscontent,
       newContent: newcontent,
       changeSummary: changeSummary || "Edited content",
       requeststatus: "Pending",
+      requester:user.name,
     });
     if (!idea.contributors) idea.contributors = [];
     if (!idea.contributors.includes(userid)) {
@@ -472,3 +476,102 @@ export const ideaslist = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+export const addSection = async (req, res) => {
+  try {
+    const { ideaid, parentid, title, content } = req.body;
+    const user = req.user;
+
+    if (!title) {
+      return res.json({ success: false, message: "Title is required" });
+    }
+
+    const newSection = await sectionmodel.create({
+      title,
+      content: content || "",
+      parent: parentid || null,
+    });
+
+    if (parentid) {
+      const parentSection = await sectionmodel.findById(parentid);
+      if (!parentSection)
+        return res.json({
+          success: false,
+          message: "Parent section not found",
+        });
+
+      parentSection.children.push(newSection._id);
+      await parentSection.save();
+    } else if (ideaid) {
+      const idea = await ideamodel.findById(ideaid);
+      if (!idea) return res.json({ success: false, message: "Idea not found" });
+
+      idea.sections.push(newSection._id);
+      await idea.save();
+    } else {
+      return res.json({
+        success: false,
+        message: "Provide either ideaId or parentId",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: parentid
+        ? "Subsection added successfully"
+        : "Section added successfully",
+      section: newSection,
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const getsection = async (req, res) => {
+  try {
+    const { parentid, ideaid } = req.body;
+    let sectionsIds = [];
+
+    if (!parentid) {
+      const idea = await ideamodel.findById(ideaid);
+      if (!idea || !idea.sections || idea.sections.length === 0) {
+        return res.json({ success: false, message: "No sections found" });
+      }
+      sectionsIds = idea.sections;
+    } else {
+      const sec = await sectionmodel.findById(parentid);
+      if (!sec || !sec.children || sec.children.length === 0) {
+        return res.json({ success: false, message: "No subsection" });
+      }
+      sectionsIds = sec.children;
+    }
+
+    const results = await Promise.all(
+      sectionsIds.map((sectionId) => sectionmodel.findById(sectionId))
+    );
+
+    return res.json({ success: true, results });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export const messaging = async(req,res)=>{
+  const {senderid , receiverid} = req.params;
+  const messages = await UserMessage.find({
+    $or:[
+      {sender:senderid , receiver:receiverid},
+      {sender:receiverid , receiver:senderid}
+    ],
+  }).sort({createdAt: 1});
+  res.json(messages);
+}
+
+export const allusers = async (req,res)=>{
+  try {
+    const users = await usermodel.find();
+    res.json(users);
+  } catch (error) {
+    res.json({success:false,message:error.message});
+  }
+}

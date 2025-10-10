@@ -18,11 +18,14 @@ const userAuth = async (req, res, next) => {
         populate: [{
           path:"ideaid",
           model:"idea",
-          populate: {
+          populate: [{
             path: "contributors",
             model: "user",
             select: "name profileimage country passion",
-          },
+        },{
+          path: "sections",
+            model: "section"
+        }],
         },
         {
           path:"history",

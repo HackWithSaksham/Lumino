@@ -83,7 +83,7 @@ function Home() {
       style={{ backgroundImage: `url(${homebg})` }}
     >
       <Navbar />
-      <div className="flex flex-col pt-20 pb-25 px-30 w-[55%] gap-20 items-center">
+      <div className="flex flex-col pt-30 pb-25 px-30 w-[55%] gap-20 items-center">
         <div className="flex flex-col gap-10">
           <p className="text-[40px] font-bold leading-tight text-white/90">
             Preserving and showcasing creative works & performance

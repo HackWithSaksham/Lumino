@@ -15,9 +15,21 @@ const UserSchema = new mongoose.Schema({
   ideas: [{ type: mongoose.Schema.Types.ObjectId, ref: "idea" }],
   contribution: [{ type: mongoose.Schema.Types.ObjectId, ref: "contribution" }],
   requests:[{ type: mongoose.Schema.Types.ObjectId, ref: "contribution" }],
-});
+},{timestamps:true});
 export const usermodel =
   mongoose.models["user"] || mongoose.model("user", UserSchema);
+
+
+const SectionSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: String },
+  parent: { type: mongoose.Schema.Types.ObjectId, ref: "section", default: null }, 
+  children: [{ type: mongoose.Schema.Types.ObjectId, ref: "section" }],
+},{timestamps:true});
+
+export const sectionmodel =
+  mongoose.models["section"] || mongoose.model("section", SectionSchema);
+
 
 const IdeaSchema = new mongoose.Schema(
   {
@@ -29,6 +41,7 @@ const IdeaSchema = new mongoose.Schema(
     author: { type: String },
     authorimage: { type: String },
     contributors: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+    sections: [{ type: mongoose.Schema.Types.ObjectId, ref: "section" }]
   },
   { timestamps: true }
 );
@@ -40,7 +53,8 @@ const HistorySchema = new mongoose.Schema({
   previousContent: { type: String },
   newContent: { type: String },
   requeststatus:{type:String},
-});
+  requester:{type:String}
+},{timestamps:true});
 export const historymodel =
   mongoose.models["history"] || mongoose.model("history", HistorySchema);
 
@@ -71,3 +85,22 @@ const BadgeSchema = new mongoose.Schema(
 );
 export const badgemodel =
   mongoose.models["badge"] || mongoose.model("badge", BadgeSchema);
+
+
+
+  const ConversationSchema = new mongoose.Schema({
+      participants : [{type : mongoose.Schema.Types.ObjectId , ref:"user"}]
+  })
+  
+  export const Conversation = mongoose.model['Conversation'] || mongoose.model('Conversation',ConversationSchema)
+  
+  
+  const MessageSchema = new mongoose.Schema({
+      conversationId : {type:mongoose.Schema.Types.ObjectId , ref:'Conversation'},
+      sender : {type : mongoose.Schema.Types.ObjectId , ref:'user'},
+      receiver : {type : mongoose.Schema.Types.ObjectId , ref:'user'},
+      text : String,
+      createdAt : {type:Date , default:Date.now}
+  },{timestamps:true})
+  
+  export const UserMessage = mongoose.model['UserMessage'] || mongoose.model('UserMessage',MessageSchema);

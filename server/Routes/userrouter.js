@@ -18,6 +18,10 @@ import {
   rejectcont,
   revertcont,
   ideaslist,
+  addSection,
+  getsection,
+  messaging,
+  allusers,
 } from "../Controller/DataController.js";
 import multer from "multer";
 import path from "path";
@@ -58,6 +62,9 @@ userrouter.post("/acceptrequest", userAuth,acceptcont);
 userrouter.post("/rejectrequest", userAuth,rejectcont);
 userrouter.post("/revertrequest", userAuth,revertcont);
 userrouter.post("/ideaslist", userAuth,ideaslist);
-
+userrouter.post("/addsection", userAuth,addSection);
+userrouter.post("/getsection",getsection);
+userrouter.get('/:senderid/:receiverid',messaging);
+userrouter.get('/users-info',allusers);
 
 export default userrouter;

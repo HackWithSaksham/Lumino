@@ -11,16 +11,24 @@ export const AppContextProvider = (props) => {
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [userData, setUserData] = useState(null);
   const [allbadges, setbadges] = useState([]);
-  const [ideaslist,setideaslist] = useState([]);
+  const [ideaslist, setideaslist] = useState([]);
+  const [usersData, setusersData] = useState([]);
   const [ideaid, setideaid] = useState(() => {
     return localStorage.getItem("ideaid") || "";
   });
-  const [contribution, setcontribution] = useState(null);
+  const [sectionid, setsectionid] = useState(() => {
+    return localStorage.getItem("sectionid") || "";
+  });
+  const [historyid, sethistoryid] = useState("");
+  const [requestid, setrequestid] = useState("");
 
   const navigate = useNavigate();
   useEffect(() => {
     if (ideaid) localStorage.setItem("ideaid", ideaid);
   }, [ideaid]);
+  useEffect(() => {
+    if (sectionid) localStorage.setItem("sectionid", sectionid);
+  }, [sectionid]);
 
   const getAuthState = async () => {
     try {
@@ -28,14 +36,13 @@ export const AppContextProvider = (props) => {
       if (data.success) {
         setIsLoggedin(true);
         await getUserData();
+      } else {
+        setIsLoggedin(false);
+        setUserData(null);
       }
-      else {
-      setIsLoggedin(false);
-      setUserData(null);
-    }
     } catch (error) {
       setIsLoggedin(false);
-    setUserData(null);
+      setUserData(null);
       console.log(error.message);
     }
   };
@@ -72,21 +79,35 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  const getideaslist = async()=>{
-    const {data} = await axios.post(`${backendUrl}/api/user/ideaslist`,
-      {withCredentials:true}
-    );
+  const getideaslist = async () => {
+    const { data } = await axios.post(`${backendUrl}/api/user/ideaslist`, {
+      withCredentials: true,
+    });
     setideaslist(data.results);
-  }
+  };
+  const fetchusers = async () => {
+      try {
+        const res = await axios.get(`${backendUrl}/api/user/users-info`);
+        setusersData(res.data);
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
 
   useEffect(() => {
-    getAuthState(), getAllBadges(),getideaslist();
+    getAuthState(), getAllBadges(), getideaslist(),fetchusers();
   }, []);
 
   const value = {
+    usersData,
+    setusersData,
+    requestid,
+    setrequestid,
+    sectionid,
+    setsectionid,
     ideaslist,
-    contribution,
-    setcontribution,
+    historyid,
+    sethistoryid,
     ideaid,
     handlelogout,
     setideaid,

@@ -6,13 +6,14 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Navbar from "../components/Navbar";
 const Profile = () => {
   const [activetab, setactivetab] = useState("ideas");
   const [searchvalue, setsearchvalue] = useState("");
   const [searchcurrent, setsearchcurrent] = useState("all");
   const [filteredIdeas, setFilteredIdeas] = useState([]);
   const navigate = useNavigate();
-  const { userData, backendUrl, allbadges, ideaid, setideaid, setUserData ,setcontribution} =
+  const { userData, backendUrl, allbadges, ideaid, setideaid, setUserData ,sethistoryid} =
     useContext(AppContent);
   const formatContributors = (num) => {
     if (num < 10) return `${num} Contributors`;
@@ -32,7 +33,7 @@ const Profile = () => {
     }M+ Contributors`;
   };
   const handlecontribution = async(contribe)=>{
-    setcontribution(contribe);
+    sethistoryid(contribe.history[0]._id);
     navigate("/contribution");
   }
   const {
@@ -100,7 +101,9 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col px-50 pt-20 gap-22 bg-[#0D0B1A] min-h-screen text-white">
+    <div className="flex flex-col bg-[#0D0B1A] min-h-screen text-white">
+      <Navbar />
+      <div className="flex flex-col px-50 pt-15 gap-22">
       <div className="flex justify-between">
         <div className="flex gap-7 items-center ">
           <img
@@ -482,6 +485,7 @@ const Profile = () => {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 };
