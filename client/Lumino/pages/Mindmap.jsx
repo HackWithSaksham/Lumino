@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar";
 import { ArrowLeft } from "lucide-react";
 
 export default function MindMaps() {
-  const { userData, backendUrl, ideaid, setideaid, sectionid, setsectionid } = useContext(AppContent);
+  const { userData, backendUrl } = useContext(AppContent);
   const [currsectionid, setcurrsectionid] = useState("");
   const [currideaid, setcurrideaid] = useState("");
   const [title, settitle] = useState("All Ideas");
@@ -116,6 +116,14 @@ export default function MindMaps() {
                   onClick={() => handlechangeid(act)}
                 >
                   <h2 className="text-xl font-bold mb-2">{act.title}</h2>
+
+                  {/* ✅ Added Description */}
+                  {act.description && (
+                    <p className="text-sm italic text-gray-300 mb-3 line-clamp-2">
+                      {act.description}
+                    </p>
+                  )}
+
                   <p className="text-sm font-light mb-4 line-clamp-6">{act.content}</p>
                   <div className="absolute bottom-4 right-4 text-gray-300 text-xs">{act.time}</div>
                 </motion.div>

@@ -12,7 +12,6 @@ const Message = () => {
   const [receiverId, setReceiverId] = useState("");
   const [thisMessage, setThisMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [senderId, setSenderId] = useState("");
   const [searchUser, setSearchUser] = useState("");
   const [receiverUser, setReceiverUser] = useState(null);
   const messageEndRef = useRef(null);
@@ -25,24 +24,33 @@ const Message = () => {
 
   useEffect(() => {
     if (!normalizedUserId) return;
-
-    setSenderId(normalizedUserId);
     socket.emit("register", normalizedUserId);
-
-    socket.on("receivermessage", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    return () => socket.off("receivermessage");
   }, [normalizedUserId]);
 
   useEffect(() => {
-    if (!receiverId || !senderId) return;
+    const handleReceive = (msg) => {
+      setMessages((prev) => {
+        const alreadyExists = prev.some(
+          (m) =>
+            m.text === msg.text &&
+            m.senderid === msg.senderid &&
+            m.receiverid === msg.receiverid
+        );
+        return alreadyExists ? prev : [...prev, msg];
+      });
+    };
+
+    socket.on("receivermessage", handleReceive);
+    return () => socket.off("receivermessage", handleReceive);
+  }, []);
+
+  useEffect(() => {
+    if (!receiverId || !normalizedUserId) return;
 
     const fetchMessages = async () => {
       try {
         const res = await axios.get(
-          `${backendUrl}/api/user/${senderId}/${receiverId}`
+          `${backendUrl}/api/user/${normalizedUserId}/${receiverId}`
         );
         setMessages(res.data || []);
       } catch (error) {
@@ -51,7 +59,7 @@ const Message = () => {
     };
 
     fetchMessages();
-  }, [backendUrl, senderId, receiverId]);
+  }, [backendUrl, normalizedUserId, receiverId]);
 
   useEffect(() => {
     scrollMessage();
@@ -67,10 +75,6 @@ const Message = () => {
     };
 
     socket.emit("sendmessage", messageObj);
-    setMessages((prev) => [
-      ...prev,
-      { senderid: normalizedUserId, text: thisMessage.trim() },
-    ]);
     setThisMessage("");
   };
 
@@ -140,7 +144,7 @@ const Message = () => {
                       }`}
                     >
                       <img
-                        src={user.image}
+                        src={`${backendUrl}${user.profileimage}`}
                         alt={user.name}
                         className="w-10 h-10 rounded-full"
                       />
@@ -165,7 +169,7 @@ const Message = () => {
             <div className="flex flex-col flex-1 p-4">
               <div className="flex items-center gap-3 mb-2">
                 <img
-                  src={receiverUser?.image}
+                  src={`${backendUrl}${receiverUser.profileimage}`}
                   className="h-11 w-11 rounded-full"
                   alt={receiverUser?.name}
                 />
